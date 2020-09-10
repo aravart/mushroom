@@ -4,7 +4,6 @@ import io
 import numpy as np
 import tqdm
 import argparse
-import pydot
 import logging
 import re
 import subprocess
@@ -180,9 +179,6 @@ def effective_conductance_from_corpus(corpus, keyword_phrase, context_phrase, ma
     return results, g, left, right
 
 def print_graph(g,l,r):
-    nodes = {}
-    for u in g:
-        nodes[u] = pydot.Node(u)
     for u in g:
          if u in l:
               type = "context"
