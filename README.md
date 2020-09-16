@@ -105,13 +105,7 @@ These are then passed to the method as follows:
 
     python mushroom.py corpus.txt "I want to __" "make a reservation Tuesday night for four at the nearest crab shack" --output results.txt
 
-Synthesized utterances would be written to the `results.txt` file.
+Synthesized utterances would be written to the `results.txt` file. In addition, console output will include some useful debugging information:
 
-## Output
-
-The command will print:
-
-- the edges of the electric network that is used to generated the utterances;
-- the ranking and scores for context phrases in the corpus that mactch seed keyword phrases. 
-
-The outputting synthesized utterances are written into `results.txt`.
+- the edges of the electric network that is used to generated the utterances
+- the ranking and scores for context phrases in the corpus that match seed keyword phrases. 
