@@ -8,10 +8,10 @@ You will need the following packages:
 
     pip install nltk tqdm numpy
 
-In addition, you will need to install the `stopwords` package in `nltk` which you can do by executing the following in the Python shell:
+In addition, you will need to install the `punkt` package in `nltk` which you can do by executing the following in the Python shell:
 
     import nltk
-    nltk.download('stopwords')
+    nltk.download('punkt')
 
 # Scripts
 

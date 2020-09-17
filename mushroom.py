@@ -10,8 +10,6 @@ import subprocess
 import sys
 import nltk
 
-stopwords = set(nltk.corpus.stopwords.words('english')) 
-
 if sys.version_info <= (3, 0):
      print("Please use Python 3. This script does not perform correctly on Python 2.")
      sys.exit(0)
@@ -70,13 +68,7 @@ def similar(u, corpus):
             if sim != u and j != 0: yield sim, j
 
 def load_corpus(filename):
-     res = []
-     cleanup = re.compile('[^a-zA-Z\s_]')
-     for line in open(filename, 'r'):
-          line = cleanup.sub(' ', line)
-          line = ' '.join(line.lower().split())
-          res.append(line)
-     return res
+     return [' '.join(nltk.word_tokenize(f)) for f in open(filename, 'r')]
 
 def mk_graph(keyword_phrase, corpus, max_depth):
     counts = {}
