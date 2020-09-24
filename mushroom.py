@@ -35,19 +35,25 @@ def jaccard(u,v):
 
 def match(u, corpus, whole):
     context = '__' in u
-    pattern = re.compile("\\b" + u.replace('__', '(.*)'))
+    if whole:
+         context_pattern = re.compile("\\b" + u.replace('__', '(.*)') + '$')
+    else:
+         context_pattern = re.compile("\\b" + u.replace('__', '(.*)'))
+    keyword_pattern = re.compile("\\b" + u + "\\b")
     for line in corpus:
         if context:
             if whole:
-                m = pattern.match(line)
+                m = context_pattern.match(line)
             else:
-                m = pattern.search(line)
+                m = context_pattern.search(line)
             if m:
                 yield m.group(1),line
         else:
             if u in line and u != line:
-                i = line.index(u)
-                yield line[:i] + '__' + line[i+len(u):],line
+                m = keyword_pattern.search(line)
+                if m:
+                     i = m.span()[0]
+                     yield line[:i] + '__' + line[i+len(u):],line
 
 def similar(u, corpus):
     context = '__' in u
