@@ -1,4 +1,6 @@
 from nltk.translate.bleu_score import sentence_bleu
+import nltk
+import csv
 import tqdm
 import argparse
 import numpy as np
@@ -9,13 +11,9 @@ parser.add_argument("reference")
 parser.add_argument("generated")
 
 def load_corpus(filename):
-     res = []
-     cleanup = re.compile('[^a-zA-Z\s_]')
-     for line in open(filename, 'r'):
-          line = cleanup.sub(' ', line)
-          line = ' '.join(line.lower().split())
-          res.append(line)
-     return res
+     with open(filename) as csvfile:
+          reader = csv.reader(csvfile, skipinitialspace=True)
+          return [' '.join(nltk.word_tokenize(row[0])) for row in reader]
 
 def bleu(held_out_sentences, generated_sentences):
     i_max = len(generated_sentences)
@@ -24,7 +22,7 @@ def bleu(held_out_sentences, generated_sentences):
     best = []
     for i in tqdm.tqdm(range(i_max)):
         for j in range(j_max):
-            scores[i][j] = sentence_bleu([held_out_sentences[j].split()], generated_sentences[i].split())
+            scores[i][j] = sentence_bleu([held_out_sentences[j].split()], generated_sentences[i].split(), weights=(1/2,1/2))
         idx = np.where(scores[i] == np.max(scores[i]))[0][0]
         best.append((generated_sentences[i], held_out_sentences[idx], scores[i][idx]))
     best.sort(key=lambda x: x[2])

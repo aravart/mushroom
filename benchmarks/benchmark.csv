@@ -1,0 +1,22 @@
+benchmarks/datasets/atis.csv, atis_abbreviation, what does __, fare code q mean
+benchmarks/datasets/atis.csv, atis_aircraft, what __, type of aircraft is used on the first flight from philadelphia to dallas
+benchmarks/datasets/atis.csv, atis_airfare, could you please find me __, the cheapest one way fare from boston to philadelphia
+benchmarks/datasets/atis.csv, atis_airline, which __, airlines fly from boston to san francisco
+benchmarks/datasets/atis.csv, atis_airport, please show me __, all airports in denver
+benchmarks/datasets/atis.csv, atis_capacity, how many __, passengers can a boeing 737 hold
+benchmarks/datasets/atis.csv, atis_city, what are the __, cities served by delta airlines
+benchmarks/datasets/atis.csv, atis_distance, what is __, the distance from los angeles international airport to los angeles
+benchmarks/datasets/atis.csv, atis_flight, are there __, any flights from denver to pittsburgh with stops in atlanta
+benchmarks/datasets/atis.csv, atis_flight_no, what is __, the flight number of the earliest flight between boston and washington dc
+benchmarks/datasets/atis.csv, atis_flight_time, what __, time are the flights from baltimore to san francisco
+benchmarks/datasets/atis.csv, atis_ground_fare, how much does it __, cost to rent a car in tacoma
+benchmarks/datasets/atis.csv, atis_ground_service, i would like information on __, ground transportation in the city of atlanta from airport to downtown
+benchmarks/datasets/atis.csv, atis_quantity, how many __, first class flights does delta have today
+benchmarks/datasets/atis.csv, atis_restriction, what is __, restriction ap57
+benchmarks/datasets/2017-06-custom-intent-engines.csv, AddToPlaylist, can you __, add something by the artist Paul Cargnello to my Chill Tracks playlist
+benchmarks/datasets/2017-06-custom-intent-engines.csv, BookRestaurant, I need __, a table at a brasserie in Belgium
+benchmarks/datasets/2017-06-custom-intent-engines.csv, GetWeather, Can you tell me __, the weather forecast for Denmark
+benchmarks/datasets/2017-06-custom-intent-engines.csv, PlayMusic, Can you __, play some eighties music
+benchmarks/datasets/2017-06-custom-intent-engines.csv, RateBook, I want to __, give Think Like a Freak one stars
+benchmarks/datasets/2017-06-custom-intent-engines.csv, SearchCreativeWork, Can you find __, a photograph entitled Beneath the Harvest Sky
+benchmarks/datasets/2017-06-custom-intent-engines.csv, SearchScreeningEvent, Can I get __, the movie schedules for Megaplex Theatres

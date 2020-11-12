@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import nltk
+import csv
 
 if sys.version_info <= (3, 0):
      print("Please use Python 3. This script does not perform correctly on Python 2.")
@@ -23,72 +24,21 @@ parser.add_argument("keyword_phrase")
 parser.add_argument("-d", "--debug", action='store_true')
 parser.add_argument("--depth", default=2, type=int)
 parser.add_argument("--output", default=None)
+parser.add_argument("--matcher", default='regex', choices=['regex','parse'])
 
 logging.basicConfig(level=logging.WARN, format='%(message)s')
 
-def jaccard(u,v):
-    u = set(u.split())
-    v = set(v.split())
-    u.discard('__')
-    v.discard('__')
-    return len(u.intersection(v)) / len(u.union(v))
-
-def match(u, corpus, whole):
-    context = '__' in u
-    if whole:
-         context_pattern = re.compile("\\b" + u.replace('__', '(.*)') + '$')
-    else:
-         context_pattern = re.compile("\\b" + u.replace('__', '(.*)'))
-    keyword_pattern = re.compile("\\b" + u + "\\b")
-    for line in corpus:
-        if context:
-            if whole:
-                m = context_pattern.match(line)
-            else:
-                m = context_pattern.search(line)
-            if m:
-                yield m.group(1),line
-        else:
-            if u in line and u != line:
-                m = keyword_pattern.search(line)
-                if m:
-                     i = m.span()[0]
-                     yield line[:i] + '__' + line[i+len(u):],line
-
-def similar(u, corpus):
-    context = '__' in u
-    if context:
-        # Find the last word before __
-        s = u.split()
-        s = s[s.index('__')-1]
-        for v,_ in match('__ ' + s, corpus, False):
-            # Now v should *not* contain s so we have to add it back
-            sim = v + ' ' + s + ' __'
-            j = jaccard(sim, u)
-            if sim != u and j != 0: yield sim, j
-    else:
-        first_word = u.split()[0]
-        for v,_ in match(first_word + ' __', corpus, False):
-            sim = first_word + ' ' + v
-            j = jaccard(sim, u)
-            if sim != u and j != 0: yield sim, j
-
 def load_corpus(filename):
-     return [' '.join(nltk.word_tokenize(f)) for f in open(filename, 'r')]
+     with open(filename) as csvfile:
+          reader = csv.reader(csvfile, skipinitialspace=True)
+          return [' '.join(nltk.word_tokenize(row[0])) for row in reader]
 
-def mk_graph(keyword_phrase, corpus, max_depth):
-    counts = {}
-    for utterance in corpus:
-        if utterance in counts:
-            counts[utterance] = counts[utterance] + 1
-        else:
-            counts[utterance] = 1
-
-    h = deque([(keyword_phrase, 1)])
+def mk_graph(seed_keyword_phrases, matcher, max_depth):
+    h = deque([(keyword_phrase, 1) for keyword_phrase in seed_keyword_phrases])
     closed = set()
-    g = {keyword_phrase: {}}
+    g = dict([(keyword_phrase, {}) for keyword_phrase in seed_keyword_phrases])
     left = set()
-    right = set([keyword_phrase])
+    right = set(seed_keyword_phrases)
 
     while h:
         u, depth = h.popleft()
@@ -99,9 +49,11 @@ def mk_graph(keyword_phrase, corpus, max_depth):
         context = '__' in u
         if context:
             logging.info('pop (context): ' + u)
+            matches = matcher.context_to_keyphrases(u)
         else:
             logging.info('pop (keyword): ' + u)
-        for v,_ in match(u, corpus, context):
+            matches = matcher.keyphrase_to_contexts(u)
+        for v in matches:
             logging.info('  match: ' + v)
             if v not in g:
                 g[v] = {}
@@ -110,14 +62,20 @@ def mk_graph(keyword_phrase, corpus, max_depth):
                 else:
                     left.add(v)
             if context:
-                t = u.replace("__", v)
+                t = matcher.combine(u,v)
             else:
-                t = v.replace("__", u)
-            g[u][v] = epsilon * counts[t]
-            g[v][u] = epsilon * counts[t]
+                t = matcher.combine(v,u)
+            g[u][v] = epsilon * matcher.counts[t]
+            g[v][u] = epsilon * matcher.counts[t]
             if depth < max_depth:
                 h.append((v,depth + 1))
-        for v,w in similar(u, corpus):
+        if context:
+             matches = matcher.context_to_contexts(u)
+        else:
+             matches = matcher.keyphrase_to_keyphrases(u)
+        for v,w in matches:
+            if w == 0:
+                 raise Exception("Zero weight may cause singularity")
             logging.info('  similar: ' + v + ', w: ' + str(w))
             if v not in g:
                 g[v] = {}
@@ -146,6 +104,7 @@ def effective_conductance_from_graph(g, keyword_phrase, targets):
             a[i][idx[v]] = w
             a[idx[v]][i] = w
     c_a = np.sum(a,axis=0)
+    oa = a
     a = np.diag(1/c_a).dot(a)
     for j in range(d):
         a[j,j] = -1
@@ -169,10 +128,13 @@ def effective_conductance_from_graph(g, keyword_phrase, targets):
         a[idx[target],:] = original_row
     return res
 
-def effective_conductance_from_corpus(corpus, keyword_phrase, context_phrase, max_depth):
-    g, left, right = mk_graph(keyword_phrase, corpus, max_depth)
-    targets = set(list(left) + [context_phrase])
-    results = list(zip(targets, map(lambda x: x[0], effective_conductance_from_graph(g, keyword_phrase, targets))))
+def effective_conductance_from_corpus(matcher, seed_keyword_phrases, max_depth):
+    g, left, right = mk_graph(seed_keyword_phrases, matcher, max_depth)
+    # if context_phrase not in list(left):
+    #      raise Exception("Context phrase not found during search.")
+    targets = set(left)
+    # TODO change below to handle multiple seed keyphrases
+    results = list(zip(targets, map(lambda x: x[0], effective_conductance_from_graph(g, seed_keyword_phrases[0], targets))))
     results.sort(key=lambda x: x[1])
     return results, g, left, right
 
@@ -217,14 +179,22 @@ def print_graph_info(g,l,r):
                     black += 1
     print("{} green edge(s), {} red edge(s), {} black edges".format(green, red, black))
 
-def generated_sentences(results, keyword_phrase):
-    return list(map(lambda x: x[0].replace("__", keyword_phrase), results))
+def generated_sentences(results, keyword_phrase, matcher):
+    return list(map(lambda x: matcher.combine(x[0], keyword_phrase), results))
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    corpus = load_corpus(args.filename)
-    corpus.append(args.context_phrase.replace("__", args.keyword_phrase))
-    results, g, l, r = effective_conductance_from_corpus(corpus, args.keyword_phrase, args.context_phrase, args.depth)
+    if args.matcher == 'regex':
+         from regex_match import RegexMatch
+         corpus = load_corpus(args.filename)
+         corpus.append(args.context_phrase.replace("__", args.keyword_phrase))
+         matcher = RegexMatch(corpus)
+         seed_keyword_node = args.keyword_phrase
+    else:
+         from parse_match_v2 import ParseMatch
+         matcher = ParseMatch(args.filename)
+         seed_keyword_node = matcher.add(args.context_phrase, args.keyword_phrase)
+    results, g, l, r = effective_conductance_from_corpus(matcher, [seed_keyword_node], args.depth)
     print_graph_info(g,l,r)
     print()
     print_graph(g,l,r)
@@ -233,5 +203,5 @@ if __name__ == "__main__":
         print(w, r)
     if args.output is not None:
         with open(args.output, 'w') as f:
-             for sentence in generated_sentences(results, args.keyword_phrase):
+             for sentence in generated_sentences(results, seed_keyword_node, matcher):
                   f.write(sentence + '\n')
