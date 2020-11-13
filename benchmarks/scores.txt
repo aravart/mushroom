@@ -1,0 +1,23 @@
+0.357, atis_abbreviation
+0.506, atis_aircraft
+0.519, atis_airfare
+0.485, atis_airline
+0.204, atis_airport
+0.316, atis_capacity
+0.308, atis_city
+0.303, atis_distance
+0.583, atis_flight
+0.238, atis_flight_no
+0.39, atis_flight_time
+0.218, atis_ground_fare
+0.411, atis_ground_service
+0.336, atis_quantity
+0.218, atis_restriction
+0.688, AddToPlaylist
+0.391, BookRestaurant
+0.409, GetWeather
+0.352, PlayMusic
+0.278, RateBook
+0.424, SearchCreativeWork
+0.4, SearchScreeningEvent
+0.378818
