@@ -34,11 +34,17 @@ class RegexMatch():
 
      def match(self, u, corpus, whole):
           context = '__' in u
-          if whole:
-               context_pattern = re.compile("\\b" + u.replace('__', '(.*)') + '$')
-          else:
-               context_pattern = re.compile("\\b" + u.replace('__', '(.*)'))
-          keyword_pattern = re.compile("\\b" + u + "\\b")
+          # re.escape(u) might be correct but causes all kinds of performance problems
+          # But see python human.py benchmarks/datasets/frames.csv --debug-seed-files "seed1.txt" as there are differences
+          try:
+            if whole:
+                context_pattern = re.compile("\\b" + u.replace('__', '(.*)') + '$')
+            else:
+                context_pattern = re.compile("\\b" + u.replace('__', '(.*)'))
+            keyword_pattern = re.compile("\\b" + u + "\\b")
+          except Exception as e:
+              print("Fail! " + u)
+              return
           for line in corpus:
                if context:
                     if whole:
