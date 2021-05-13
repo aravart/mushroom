@@ -1,0 +1,167 @@
+\documentclass[12pt]{beamer}
+\usepackage{graphicx}
+\usepackage{tikz}
+\setbeameroption{hide notes}
+\setbeamertemplate{note page}[plain]
+\beamertemplatenavigationsymbolsempty
+\hypersetup{pdfpagemode=UseNone} % don't show bookmarks on initial view
+\definecolor{offwhite}{RGB}{249,242,215}
+\definecolor{foreground}{RGB}{255,255,255}
+\definecolor{background}{RGB}{24,24,24}
+\definecolor{title}{RGB}{107,174,214}
+\definecolor{gray}{RGB}{155,155,155}
+\definecolor{subtitle}{RGB}{102,255,204}
+\definecolor{hilight}{RGB}{102,255,204}
+\definecolor{vhilight}{RGB}{255,111,207}
+\definecolor{lolight}{RGB}{155,155,155}
+\setbeamercolor{titlelike}{fg=title}
+\setbeamercolor{subtitle}{fg=subtitle}
+\setbeamercolor{institute}{fg=gray}
+\setbeamercolor{normal text}{fg=foreground,bg=background}
+\setbeamercolor{item}{fg=foreground} % color of bullets
+\setbeamercolor{subitem}{fg=foreground}
+\setbeamercolor{itemize/enumerate subbody}{fg=foreground}
+\setbeamertemplate{itemize subitem}{{\textendash}}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subitem}{size=\footnotesize}
+\setbeamertemplate{footline}{\raisebox{5pt}{\makebox[\paperwidth]{\hfill\makebox[20pt]{\color{gray} \scriptsize\insertframenumber}}}\hspace*{5pt}}
+\addtobeamertemplate{note page}{\setlength{\parskip}{12pt}}
+
+\makeatletter
+\def\beamer@framenotesbegin{% at beginning of slide
+  \gdef\beamer@noteitems{}%
+  \gdef\beamer@notes{{}}% used to be totally empty.
+}
+\makeatother
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\newcommand{\State}{\ensuremath{\bm{\mathcal{S}}}}
+\newcommand{\state}{\ensuremath{\bm{s}}}
+\newcommand{\Model}{\ensuremath{\bm{\Theta}}}
+\newcommand{\model}{\ensuremath{\bm{\theta}}}
+\newcommand{\Sensitive}{\ensuremath{\bm{\mathcal{X}_S}}}
+\newcommand{\Features}{\ensuremath{\bm{\mathcal{X}}}}
+\newcommand{\features}{\ensuremath{\bm{x}}}
+\newcommand{\Lab}{\ensuremath{\bm{\mathcal{Y}}}}
+\newcommand{\lab}{\ensuremath{y}}
+\newcommand{\Control}{\ensuremath{\bm{A}}}
+\newcommand{\control}{\ensuremath{\bm{a}}}
+\newcommand{\Policy}{\ensuremath{\bm{\Pi}}}
+\newcommand{\policy}{\ensuremath{\bm{\pi}}}
+\newcommand{\Hypothesis}{\ensuremath{\mathcal{H}}}
+\newcommand{\discount}{\ensuremath{\gamma}}
+\newcommand{\Disturbance}{\ensuremath{\bm{\mathcal{W}}}}
+\newcommand{\disturbance}{\ensuremath{\bm{w}}}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\usepackage{amsmath,amsfonts,amsthm,bm,bbm}
+\usepackage{algorithmic,algorithm}
+
+\title{Title}
+\author[Author]{Author}
+\institute{Department of Computer Sciences, University of Wisconsin-Madison}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{}
+  Let's say you have to add a new label to a text classifier, but oops you don't have any data.
+\end{frame} 
+
+\begin{frame}{}
+  How can you use your previously collected labelled data and a few seed utterances to help you out?
+\end{frame} 
+
+\begin{frame}{}
+  Modeling Assumptions: Let's say you could divide documents between context and keyphrase
+\end{frame} 
+
+\begin{frame}{}
+  We can depict the corpus as a bipartite graph
+
+  Introduce black edges...
+
+  Introduce green edges...
+
+  Introduce red edges...
+
+  Introduce weights...
+
+  Adding seeds to graph
+\end{frame}
+
+\begin{frame}{}
+  This forms an electric network
+\end{frame}
+  
+\begin{frame}{}
+  The effective conductance provides a ranking
+\end{frame}
+
+\begin{frame}{}
+  Practically speaking, it's hard to compute this over the whole graph, so we do some graph search to expose a subgraph
+\end{frame}
+
+\begin{frame}{}
+  How can we refine this search with user feedback?
+\end{frame}
+
+\begin{frame}{}
+  Idea: let the user revise the results and iterate
+\end{frame}
+
+\begin{frame}{}
+  First round...
+\end{frame}
+
+\begin{frame}{}
+  Second round...
+\end{frame}
+
+\begin{frame}{}
+  We used electric networks, but we can plug in other things... (GPT-3... BERT...)
+\end{frame}
+
+\begin{frame}{}
+  For the inner loop, we can do automated evalution by holding out one label from a dataset as a test set
+\end{frame}
+
+\begin{frame}{}
+  For the outer loop, we can approximate the human's editing by matching items in a separate held-out set
+\end{frame}
+
+\begin{frame}{}
+  For the outer loop, human experiments (Turkers) would be superior
+\end{frame}
+
+\begin{frame}{}
+  BLEU score evaluation compares the synthesized corpus to the held-out corpus
+\end{frame}
+
+\begin{frame}{}
+  But ultimately we want to see how a classifier performs over this synthesized
+  corpus ...
+
+  Stay tuned ...
+\end{frame}
+
+\end{document}
+
+%%% Local Variables: 
+%%% coding: utf-8
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% End: 
