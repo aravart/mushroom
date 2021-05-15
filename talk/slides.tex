@@ -1,6 +1,7 @@
 \documentclass[12pt]{beamer}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{positioning,chains,fit,shapes,calc}
 \setbeameroption{hide notes}
 \setbeamertemplate{note page}[plain]
 \beamertemplatenavigationsymbolsempty
@@ -89,26 +90,180 @@
   Modeling Assumptions: Let's say you could divide documents between context and keyphrase
 \end{frame} 
 
-\begin{frame}{}
-  We can depict the corpus as a bipartite graph
+  % Introduce black edges...
 
-  Introduce black edges...
+  % Introduce green edges...
 
-  Introduce green edges...
+  % Introduce red edges...
 
-  Introduce red edges...
+  % Introduce weights...
 
-  Introduce weights...
+  % Adding seeds to graph
 
-  Adding seeds to graph
+\begin{frame}
+  \frametitle<1>{We can represent the corpus as a bipartite graph}
+  \frametitle<2>{Edges represent a document in the corpus}
+  \frametitle<3>{Add the seed utterance(s)}
+
+  \definecolor{myblue}{RGB}{80,80,160}
+  \definecolor{mygreen}{RGB}{80,160,80}  
+\begin{center}
+  \begin{tikzpicture}[thick,
+    every node/.style={circle},
+    fsnode/.style={fill=myblue},
+    ssnode/.style={fill=mygreen},
+    every fit/.style={inner sep=-2pt,text width=2cm}, shorten >= 3pt,shorten <= 3pt]
+
+    % the vertices of U
+    \begin{scope}[start chain=going below,node distance=7mm]
+      \node[fsnode,on chain] (f1) [label=left: Please \_\_] {};
+      \node[fsnode,on chain] (f2) [label=left: Could you \_\_ please] {};
+      \node[fsnode,on chain] (f3) [label=left: Can I \_\_] {};
+      \node[fsnode,on chain] (f4) [label=left: I want to \_\_] {};
+    \end{scope}
+
+    % the vertices of V
+    \begin{scope}[xshift=4cm,yshift=-0.5cm,start chain=going below,node distance=7mm]
+      \node[ssnode,on chain] (s6) [label=right: buy Abbey Road] {};
+      \node[ssnode,on chain] (s7) [label=right: book a table] {};
+      \node[ssnode,on chain] (s8) [label=right: find a birthday gift] {};
+      \node[ssnode,on chain] (s9) [label=right: cancel a reservation] {};
+    \end{scope}
+
+    % the set U
+    \node [myblue,fit=(f1) (f4),label=above:$Contexts$] {};
+    % the set V
+    \node [mygreen,fit=(s6) (s8),label=above:$Keywords$] {};
+
+    % the edges
+    \pause
+    \draw (f1) -- (s6);
+    \draw (s6) -- (f2);
+    \draw (f2) -- (s7);
+    \draw (s7) -- (f3);
+    \draw (s8) -- (f3);
+    \draw (f4) -- (s6);
+
+    \pause
+    \draw (f3) -- (s9);
+
+  \end{tikzpicture}
+\end{center}
 \end{frame}
 
-\begin{frame}{}
-  This forms an electric network
+\begin{frame}{Add similarity weights between context nodes}
+
+  \definecolor{myblue}{RGB}{80,80,160}
+  \definecolor{mygreen}{RGB}{80,160,80}  
+\begin{center}
+  \begin{tikzpicture}[thick,
+    every node/.style={circle},
+    fsnode/.style={fill=myblue},
+    ssnode/.style={fill=mygreen},
+    every fit/.style={inner sep=-2pt,text width=2cm}, shorten >= 3pt,shorten <= 3pt]
+
+    % the vertices of U
+    \begin{scope}[start chain=circle placed {at=(\tikzchaincount*90:1.5)},node distance=7mm]
+      \node[fsnode,on chain] (f1) [label=above: Please \_\_] {};
+      \node[fsnode,on chain] (f2) [label=left: Could you \_\_ please] {};
+      \node[fsnode,on chain] (f3) [label=below: Can I \_\_] {};
+      \node[fsnode,on chain] (f4) [label=right: I want to \_\_] {};
+    \end{scope}
+
+    \draw (f1) -- (f2) node [midway,xshift=15,yshift=-5pt] {0.33};
+    \draw (f3) -- (f4) node [midway,xshift=15,yshift=-5pt] {0.25};
+
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}{Add similarity weights between keyphrase nodes}
+
+  \definecolor{myblue}{RGB}{80,80,160}
+  \definecolor{mygreen}{RGB}{80,160,80}  
+  \begin{center}
+    \begin{tikzpicture}[thick,
+      every node/.style={circle},
+      fsnode/.style={fill=myblue},
+      ssnode/.style={fill=mygreen},
+      every fit/.style={inner sep=-2pt,text width=2cm}, shorten >= 3pt,shorten <= 3pt]
+
+      % the vertices of U
+      \begin{scope}[start chain=circle placed {at=(\tikzchaincount*90:1.5)},node distance=0mm]
+        \node[ssnode,on chain] (s6) [label=above: buy Abbey Road] {};
+        \node[ssnode,on chain] (s7) [label=left: book a table] {};
+        \node[ssnode,on chain] (s8) [label=below: find a birthday gift] {};
+        \node[ssnode,on chain] (s9) [label=right: cancel a reservation] {};
+      \end{scope}
+
+
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% \begin{frame}{Add the seed utterance(s)}
+
+%   \definecolor{myblue}{RGB}{80,80,160}
+%   \definecolor{mygreen}{RGB}{80,160,80}  
+% \begin{center}
+%   \begin{tikzpicture}[thick,
+%     every node/.style={circle},
+%     fsnode/.style={fill=myblue},
+%     ssnode/.style={fill=mygreen},
+%     every fit/.style={inner sep=-2pt,text width=2cm}, shorten >= 3pt,shorten <= 3pt]
+
+%     % the vertices of U
+%     \begin{scope}[start chain=going below,node distance=7mm]
+%       \node[fsnode,on chain] (f1) [label=left: Please \_\_] {};
+%       \node[fsnode,on chain] (f2) [label=left: Could you \_\_ please] {};
+%       \node[fsnode,on chain] (f3) [label=left: Can I \_\_] {};
+%       \node[fsnode,on chain] (f4) [label=left: I want to \_\_] {};
+%     \end{scope}
+
+%     % the vertices of V
+%     \begin{scope}[xshift=4cm,yshift=-0.5cm,start chain=going below,node distance=7mm]
+%       \node[ssnode,on chain] (s6) [label=right: buy Abbey Road] {};
+%       \node[ssnode,on chain] (s7) [label=right: book a table] {};
+%       \node[ssnode,on chain] (s8) [label=right: find a birthday gift] {};
+%       \node[ssnode,on chain] (s9) [label=right: cancel a reservation] {};
+%     \end{scope}
+
+%     % the set U
+%     \node [myblue,fit=(f1) (f4),label=above:$Contexts$] {};
+%     % the set V
+%     \node [mygreen,fit=(s6) (s9),label=above:$Keywords$] {};
+
+%     % the edges
+%     \draw (f1) -- (s6);
+%     \draw (s6) -- (f2);
+%     \draw (f2) -- (s7);
+%     \draw (s7) -- (f3);
+%     \draw (s8) -- (f3);
+%     \draw (f3) -- (s9);
+%     \draw (s9) -- (f4);
+%     \draw (f4) -- (s6);
+%   \end{tikzpicture}
+% \end{center}
+% \end{frame}
+
+\begin{frame}{This forms an electric network}
 \end{frame}
   
-\begin{frame}{}
-  The effective conductance provides a ranking
+\begin{frame}{The effective conductance provides a ranking}
+  Rank each context $c$ with respect to keyword $k$. Voltages are a linear system:
+  \begin{equation}
+    v_x = \frac{\sum_{y \in V\setminus \{x\}} w_{xy}v_y}{\sum_{y \in V\setminus \{x\}} w_{xy}}, \quad x \in V \setminus \{c, k\}
+  \end{equation}
+  with boundary condition:
+  \begin{equation}
+    v_k = 1, v_c = 0.
+  \end{equation}
+
+  And then we can compute the effective conductance:
+  
+  \begin{equation}
+    C_{\textrm{eff}}^{k,c} = \sum_{x \in V \setminus \{k\}} (v_k - v_x) w_{kx}.
+  \end{equation}
 \end{frame}
 
 \begin{frame}{}
