@@ -69,9 +69,11 @@
 \usepackage{amsmath,amsfonts,amsthm,bm,bbm}
 \usepackage{algorithmic,algorithm}
 
-\title{Title}
-\author[Author]{Author}
+\title{Instant Corpus -- Just Add Electricity}
+\author[Author]{Ara Vartanian, Jerry Zhu}
 \institute{Department of Computer Sciences, University of Wisconsin-Madison}
+
+% Sometimes a data scientist is asked to train a text classifier for a new category without any training documents.  We propose one way for the data scientist to quickly generate a corpus for the new category.  Our method is based on the observation that many documents in an existing corpus -- which does not include the new category -- share structural similarity with the new category.  If we can find those documents and suggest modifications, we can generate promising candidate documents for the data scientist to use.  We do so with a graph-based approach, specifically by constructing an electric network and ranking candidate sentences by their effective conductance to a seed document.
 
 \begin{document}
 \begin{frame}
