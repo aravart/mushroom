@@ -254,12 +254,17 @@
 \begin{frame}{The effective conductance provides a ranking}
   Rank each context $c$ with respect to keyword $k$. Voltages are a linear system:
   \begin{equation}
-    v_x = \frac{\sum_{y \in V\setminus \{x\}} w_{xy}v_y}{\sum_{y \in V\setminus \{x\}} w_{xy}}, \quad x \in V \setminus \{c, k\}
+    v = -(DW - I)^{-1} e_k
   \end{equation}
-  with boundary condition:
-  \begin{equation}
-    v_k = 1, v_c = 0.
-  \end{equation}
+  for diagonal $D$ with
+  $$D_{ii} = \mathbb{I}[i \ne c] \left(\sum_y w_{xy}\right)^{-1}$$
+  % \begin{equation}
+  %   v_x = \frac{\sum_{y \in V\setminus \{x\}} w_{xy}v_y}{\sum_{y \in V\setminus \{x\}} w_{xy}}, \quad x \in V \setminus \{c, k\}
+  % \end{equation}
+  % with boundary condition:
+  % \begin{equation}
+  %   v_k = 1, v_c = 0.
+  % \end{equation}
 
   And then we can compute the effective conductance:
   
