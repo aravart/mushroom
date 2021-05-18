@@ -83,16 +83,24 @@
   \titlepage
 \end{frame}
 
-\begin{frame}{}
-  Let's say you have to add a new label to a text classifier, but oops you don't have any data.
+\begin{frame}{The Task: Add a New Class without Training Documents}
+\begin{itemize}
+\item Given:
+ \begin{itemize}
+ \item old corpus $\{x_i, y_i\}_n$ where $y_i \in [C]$
+ \item knowledge of new class $y=C+1$
+ \item a seed document $x_{n+1}, y_{n+1}=C+1$
+ \end{itemize}
+\item Produce:
+ augmented corpus $\{x_{n+i}, y_{n+i}=C+1\}_m$
+\end{itemize}
 \end{frame} 
 
-\begin{frame}{}
-  How can you use your previously collected labelled data and a few seed utterances to help you out?
-\end{frame} 
 
-\begin{frame}{}
-  Modeling Assumptions: Let's say you could divide documents between context and keyphrase
+\begin{frame}{Assumption}
+  You could divide document = style + content
+\\
+\centerline{``Can I $\vert$ cancel a reservation''}
 \end{frame} 
 
   % Introduce black edges...
@@ -136,9 +144,9 @@
     \end{scope}
 
     % the set U
-    \node [myblue,fit=(f1) (f4),label=above:$Contexts$] {};
+    \node [myblue,fit=(f1) (f4),label=above:$style$] {};
     % the set V
-    \node [mygreen,fit=(s6) (s8),label=above:$Keywords$] {};
+    \node [mygreen,fit=(s6) (s8),label=above:$content$] {};
 
     % the edges
     \pause
@@ -156,7 +164,7 @@
 \end{center}
 \end{frame}
 
-\begin{frame}{Add similarity weights between context nodes}
+\begin{frame}{Add similarity weights between style nodes}
 
   \definecolor{myblue}{RGB}{80,80,160}
   \definecolor{mygreen}{RGB}{80,160,80}  
@@ -182,7 +190,7 @@
 \end{center}
 \end{frame}
 
-\begin{frame}{Add similarity weights between keyphrase nodes}
+\begin{frame}{Add similarity weights between content nodes}
 
   \definecolor{myblue}{RGB}{80,80,160}
   \definecolor{mygreen}{RGB}{80,160,80}  
@@ -234,9 +242,9 @@
 %     \end{scope}
 
 %     % the set U
-%     \node [myblue,fit=(f1) (f4),label=above:$Contexts$] {};
+%     \node [myblue,fit=(f1) (f4),label=above:$style$] {};
 %     % the set V
-%     \node [mygreen,fit=(s6) (s9),label=above:$Keywords$] {};
+%     \node [mygreen,fit=(s6) (s9),label=above:$content$] {};
 
 %     % the edges
 %     \draw (f1) -- (s6);
@@ -250,20 +258,20 @@
 %   \end{tikzpicture}
 % \end{center}
 % \end{frame}
-\begin{frame}{This forms an electric network}
-  \begin{center}
-    \begin{circuitikz} \draw
-      (0,0) to[battery,l=1<\volt>, color=white] (4,0) -- (4,4)
-      node[anchor=west]{b}
-      (4,4) to[R, color=white] (2,6) node[anchor=south]{c}
-      (4,4) to[R, color=white] (2,2)
-      (2,6) to[R, color=white] (0,4)
-      (2,6) to[R, color=white] (2,2) node[anchor=north]{d}
-      (2,2) to[R, color=white] (0,4) node[anchor=east]{a}
-      (0,4) -- (0,0) ;
-    \end{circuitikz}
-  \end{center}
-\end{frame}
+%\begin{frame}{This forms an electric network}
+%  \begin{center}
+%    \begin{circuitikz} \draw
+%      (0,0) to[battery,l=1<\volt>, color=white] (4,0) -- (4,4)
+%      node[anchor=west]{b}
+%      (4,4) to[R, color=white] (2,6) node[anchor=south]{c}
+%      (4,4) to[R, color=white] (2,2)
+%      (2,6) to[R, color=white] (0,4)
+%      (2,6) to[R, color=white] (2,2) node[anchor=north]{d}
+%      (2,2) to[R, color=white] (0,4) node[anchor=east]{a}
+%      (0,4) -- (0,0) ;
+%    \end{circuitikz}
+%  \end{center}
+%\end{frame}
 
 
 \begin{frame}{This forms an electric network}
@@ -283,7 +291,7 @@
 \end{frame}
   
 \begin{frame}{The effective conductance provides a ranking}
-  Rank each context $c$ with respect to keyword $k$. Voltages are a linear system:
+  Rank each style $c$ with respect to content $k$. Voltages are a linear system:
   \begin{equation}
     v = -(DW - I)^{-1} e_k
   \end{equation}
@@ -305,51 +313,76 @@
 \end{frame}
 
 \begin{frame}{}
-  Practically speaking, it's hard to compute this over the whole graph, so we do some graph search to expose a subgraph
+Generate candidate documents for class $C+1$, rank them by effective conductance to seed content
+\begin{enumerate}
+\item Can I cancel a reservation
+\item Could you cancel a reservation please
+\item Please cancel a reservation
+\item I want to cancel a reservation using my bonus points
+\item $\ldots$
+\end{enumerate}
 \end{frame}
 
 \begin{frame}{}
-  How can we refine this search with user feedback?
+Human-in-the-loop: 
+\begin{itemize}
+\item select good documents, edit them if necessary
+\item add them as new seeds
+\item repeat
+\end{itemize}
 \end{frame}
 
 \begin{frame}{}
-  Idea: let the user revise the results and iterate
+\begin{itemize}
+\item
+We used electric networks, but we can plug in GPT-3, BERT, etc.
+\item
+Evaluation can be done via simulation, or real human crowdworkers
+\end{itemize}
 \end{frame}
 
-\begin{frame}{}
-  First round...
-\end{frame}
-
-\begin{frame}{}
-  Second round...
-\end{frame}
-
-\begin{frame}{}
-  We used electric networks, but we can plug in other things... (GPT-3... BERT...)
-\end{frame}
-
-\begin{frame}{}
-  For the inner loop, we can do automated evalution by holding out one label from a dataset as a test set
-\end{frame}
-
-\begin{frame}{}
-  For the outer loop, we can approximate the human's editing by matching items in a separate held-out set
-\end{frame}
-
-\begin{frame}{}
-  For the outer loop, human experiments (Turkers) would be superior
-\end{frame}
-
-\begin{frame}{}
-  BLEU score evaluation compares the synthesized corpus to the held-out corpus
-\end{frame}
-
-\begin{frame}{}
-  But ultimately we want to see how a classifier performs over this synthesized
-  corpus ...
-
-  Stay tuned ...
-\end{frame}
+% \begin{frame}{}
+%   How can we refine this search with user feedback?
+% \end{frame}
+% 
+% \begin{frame}{}
+%   Idea: let the user revise the results and iterate
+% \end{frame}
+% 
+% \begin{frame}{}
+%   First round...
+% \end{frame}
+% 
+% \begin{frame}{}
+%   Second round...
+% \end{frame}
+% 
+% \begin{frame}{}
+%   We used electric networks, but we can plug in other things... (GPT-3... BERT...)
+% \end{frame}
+% 
+% \begin{frame}{}
+%   For the inner loop, we can do automated evalution by holding out one label from a dataset as a test set
+% \end{frame}
+% 
+% \begin{frame}{}
+%   For the outer loop, we can approximate the human's editing by matching items in a separate held-out set
+% \end{frame}
+% 
+% \begin{frame}{}
+%   For the outer loop, human experiments (Turkers) would be superior
+% \end{frame}
+% 
+% \begin{frame}{}
+%   BLEU score evaluation compares the synthesized corpus to the held-out corpus
+% \end{frame}
+% 
+% \begin{frame}{}
+%   But ultimately we want to see how a classifier performs over this synthesized
+%   corpus ...
+% 
+%   Stay tuned ...
+% \end{frame}
 
 \end{document}
 
