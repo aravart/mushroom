@@ -29,7 +29,6 @@ parser.add_argument("-d", "--debug", action='store_true')
 parser.add_argument("--depth", default=2, type=int)
 parser.add_argument("--output", default=None)
 parser.add_argument("--matcher", default='regex', choices=['regex','parse'])
-parser.add_argument("--rounds", default=0, type=int)
 parser.add_argument("--debug-seed-files", default=None)
 
 logging.basicConfig(level=logging.WARN, format='%(message)s')
@@ -213,8 +212,16 @@ def parse_user_corpus(lines):
             corpus.append(line.replace('_',''))
     return keyphrases, corpus
 
+def snowball(corpus, keyphrases, depth):
+    matcher = RegexMatch(corpus)
+    results, g, l, r = effective_conductance_from_corpus(matcher, keyphrases, depth)
+    print_graph_info(g,l,r)
+    print()
+    print_graph(g,l,r)
+    print()
+    return results
+
 if __name__ == "__main__":
-    # TODO could diff Bs to non-duplicate
     # TODO improve performance
     args = parser.parse_args()
     from regex_match import RegexMatch
@@ -225,11 +232,18 @@ if __name__ == "__main__":
     else:
         debug_seed_files = []
     corpus = load_corpus(args.filename)
-    for i in range(int(1e6) if args.rounds == 0 else args.rounds):
+    shown_so_far = set([])
+    i = 0
+    while True:
         if len(debug_seed_files) > i:
             user_corpus = ''.join(open(debug_seed_files[i], 'r').readlines())
         else:
             user_corpus = open_editor(initial_message)
+        # add to seen so that user does not see their own output twice
+        # do this before parse_user_corpus to keep underscores
+        for u in user_corpus.split('\n'):
+            # breakpoint()
+            shown_so_far.add(u)
         keyphrases, user_corpus = parse_user_corpus(user_corpus)
         all_outputs.extend(user_corpus)
         if args.output:
@@ -237,12 +251,19 @@ if __name__ == "__main__":
               for line in all_outputs:
                   f.write(line + '\n')
         corpus.extend(user_corpus)
-        matcher = RegexMatch(corpus)
-        results, g, l, r = effective_conductance_from_corpus(matcher, keyphrases, args.depth)
-        print_graph_info(g,l,r)
-        print()
-        print_graph(g,l,r)
-        print()
-        initial_message = '\n'.join(reversed([ a.replace('__', '_' + c + '_') for a,b,c, in results]))
+        results = snowball(corpus, keyphrases, args.depth)
+        # filter so that user does not see same snowball result twice
+        candidates = reversed([ a.replace('__', '_' + c + '_') for a,b,c, in results])
+        initial_message = []
+        for c in candidates:
+            # breakpoint()
+            if c not in shown_so_far:
+                shown_so_far.add(c)
+                initial_message.append(c)
+        if not initial_message:
+            print("No new candidates to show!")
+            break
+        initial_message = '\n'.join(initial_message)
         for r,w,_ in reversed(results):
             print(w, r)
+        i += 1
