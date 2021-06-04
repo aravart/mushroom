@@ -1,0 +1,237 @@
+\documentclass[12pt]{beamer}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{epsfig,graphicx}
+\usepackage{mathrsfs}
+\usepackage{tikz}
+\usepackage[siunitx]{circuitikz}
+\usetikzlibrary{shapes,arrows}
+\setbeameroption{hide notes}
+\setbeamertemplate{note page}[plain]
+\beamertemplatenavigationsymbolsempty
+\hypersetup{pdfpagemode=UseNone} % don't show bookmarks on initial view
+\definecolor{offwhite}{RGB}{249,242,215}
+\definecolor{foreground}{RGB}{255,255,255}
+\definecolor{background}{RGB}{24,24,24}
+\definecolor{title}{RGB}{107,174,214}
+\definecolor{gray}{RGB}{155,155,155}
+\definecolor{subtitle}{RGB}{102,255,204}
+\definecolor{hilight}{RGB}{102,255,204}
+\definecolor{vhilight}{RGB}{255,111,207}
+\definecolor{lolight}{RGB}{155,155,155}
+\setbeamercolor{titlelike}{fg=title}
+\setbeamercolor{subtitle}{fg=subtitle}
+\setbeamercolor{institute}{fg=gray}
+\setbeamercolor{normal text}{fg=foreground,bg=background}
+\setbeamercolor{item}{fg=foreground} % color of bullets
+\setbeamercolor{subitem}{fg=foreground}
+\setbeamercolor{itemize/enumerate subbody}{fg=foreground}
+\setbeamertemplate{itemize subitem}{{\textendash}}
+\setbeamerfont{itemize/enumerate subbody}{size=\footnotesize}
+\setbeamerfont{itemize/enumerate subitem}{size=\footnotesize}
+\setbeamertemplate{footline}{\raisebox{5pt}{\makebox[\paperwidth]{\hfill\makebox[20pt]{\color{gray} \scriptsize\insertframenumber}}}\hspace*{5pt}}
+\addtobeamertemplate{note page}{\setlength{\parskip}{12pt}}
+
+\makeatletter
+\def\beamer@framenotesbegin{% at beginning of slide
+  \gdef\beamer@noteitems{}%
+  \gdef\beamer@notes{{}}% used to be totally empty.
+}
+\makeatother
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\newcommand{\State}{\ensuremath{\bm{\mathcal{S}}}}
+\newcommand{\state}{\ensuremath{\bm{s}}}
+\newcommand{\Model}{\ensuremath{\bm{\Theta}}}
+\newcommand{\model}{\ensuremath{\bm{\theta}}}
+\newcommand{\Sensitive}{\ensuremath{\bm{\mathcal{X}_S}}}
+\newcommand{\Features}{\ensuremath{\bm{\mathcal{X}}}}
+\newcommand{\features}{\ensuremath{\bm{x}}}
+\newcommand{\Lab}{\ensuremath{\bm{\mathcal{Y}}}}
+\newcommand{\lab}{\ensuremath{y}}
+\newcommand{\Control}{\ensuremath{\bm{A}}}
+\newcommand{\control}{\ensuremath{\bm{a}}}
+\newcommand{\Policy}{\ensuremath{\bm{\Pi}}}
+\newcommand{\policy}{\ensuremath{\bm{\pi}}}
+\newcommand{\Hypothesis}{\ensuremath{\mathcal{H}}}
+\newcommand{\discount}{\ensuremath{\gamma}}
+\newcommand{\Disturbance}{\ensuremath{\bm{\mathcal{W}}}}
+\newcommand{\disturbance}{\ensuremath{\bm{w}}}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\usepackage{amsmath,amsfonts,amsthm,bm,bbm}
+\usepackage{algorithmic,algorithm}
+
+\title{Instant Corpus -- Just Add Electricity}
+\author[Author]{Ara Vartanian, Jerry Zhu}
+\institute{Department of Computer Sciences, University of Wisconsin-Madison}
+
+% Sometimes a data scientist is asked to train a text classifier for a new category without any training documents.  We propose one way for the data scientist to quickly generate a corpus for the new category.  Our method is based on the observation that many documents in an existing corpus -- which does not include the new category -- share structural similarity with the new category.  If we can find those documents and suggest modifications, we can generate promising candidate documents for the data scientist to use.  We do so with a graph-based approach, specifically by constructing an electric network and ranking candidate sentences by their effective conductance to a seed document.
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Step 1: Add a seed utterance(s)}
+\texttt{i would like to \underline{buy abbey road}}
+\end{frame}
+  
+\begin{frame}{Step 2: Snowball generates sample results.}
+\texttt{Where can I \underline{buy abbey road}}
+
+\texttt{Where to \underline{buy abbey road}}
+
+\texttt{I would like to \underline{buy abbey road}}
+
+\texttt{I would like reservations to \underline{buy abbey road}}
+
+\texttt{I would like you to \underline{buy abbey road}}
+
+\texttt{I would like to add to \underline{buy abbey road}}
+
+\texttt{me and katharine would like to \underline{buy abbey road}}
+
+\texttt{i want to \underline{buy abbey road}}
+
+\texttt{i need to \underline{buy abbey road}}
+
+\texttt{Would like to \underline{buy abbey road}}
+
+\texttt{I have eight that would like to \underline{buy abbey road}}
+
+etc
+\end{frame}
+
+\begin{frame}{Step 3: Clean up the results}
+
+  
+\texttt{Where can I \underline{buy abbey road}}
+  
+\texttt{Where to \underline{buy abbey road}}
+ 
+\texttt{I would like to \underline{buy abbey road}}
+  
+\texttt{I would like you to \underline{buy abbey road}}
+  
+\texttt{i need to \underline{buy abbey road}}
+  
+\texttt{i want to \underline{buy abbey road}}
+  
+\texttt{Can I \underline{buy abbey road}}
+  
+\texttt{please \underline{buy abbey road}}
+  
+\end{frame}
+
+\begin{frame}{Step 4: Get more results (Return to step 2)}
+
+  
+\texttt{Where can I find a copy of I \underline{buy abbey road}}
+
+\texttt{Where and at what time can I \underline{buy abbey road}}
+
+\texttt{Where and when can I see The I \underline{buy abbey road}}
+
+\texttt{Can you find the I \underline{buy abbey road}}
+
+\texttt{Can you find My I \underline{buy abbey road}}
+
+\texttt{What animated movies can I \underline{buy abbey road}}
+
+\texttt{When and where can I \underline{buy abbey road}}
+
+\texttt{Where can I listen to the song The I \underline{buy abbey road}}
+
+\texttt{Where can I see the trailer for Experienced I \underline{buy abbey
+  road}}
+
+\texttt{Where can I find the novel The Great I \underline{buy abbey road}}
+
+\texttt{Can you search for Twilight I \underline{buy abbey road}}
+
+\texttt{Can you play The Change I \underline{buy abbey road}}
+
+
+etc
+
+\end{frame}
+
+\begin{frame}{Workflow}
+  \centering
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, 
+    text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=2em]
+    
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Place nodes
+    \node [block] (init) {Provide seed};
+    \node [cloud, left of=init] (expert) {expert};
+    \node [cloud, right of=init] (system) {system};
+    \node [block, below of=init] (identify) {Generate samples};
+    \node [block, below of=identify] (evaluate) {Curate samples};
+    % \node [block, left of=evaluate, node distance=3cm] (update) {update model};
+    \node [decision, below of=evaluate] (decide) {is best candidate better?};
+    \node [block, below of=decide, node distance=3cm] (stop) {stop};
+    % Draw edges
+    \path [line] (init) -- (identify);
+    \path [line] (identify) -- (evaluate);
+    \path [line] (evaluate) -- (decide);
+    % \path [line] (decide) -| node [near start] {yes} (update);
+    % \path [line] (update) |- (identify);
+    \path [line] (evaluate) |- (identify);
+    \path [line] (decide) -- node {no}(stop);
+    \path [line,dashed] (expert) -- (init);
+    \path [line,dashed] (system) -- (init);
+    \path [line,dashed] (system) |- (evaluate);
+\end{tikzpicture}
+
+  \end{frame}
+
+  \begin{frame}{Workflow}
+    \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+    \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+    \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+    \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+    \tikzstyle{line} = [draw, -latex']
+
+\centering
+    \resizebox{0.5\textwidth}{!}{
+    \begin{tikzpicture}[node distance = 2cm, auto, scale=0.5]
+      \node (in1) [io] {Initialize};
+      \node (in2) [startstop, below of=in1] {Seed};
+      \node (pro1) [process, below of=in2] {Generate};
+      \node (cand) [startstop, below of=pro1] {Candidates};
+      \node (dec1) [io, xshift=2cm, right of=cand] {Curate};
+      \node (dec2) [startstop, above of=dec1] {Output};
+      \path [line] (in1) -- (in2);
+      \path [line] (in2) -- (pro1);
+      \path [line] (pro1) -- (cand);
+      \path [line] (cand) -- (dec1);
+      \path [line] (dec1) -- (dec2);
+      \path [line] (dec2) -- (pro1);
+    \end{tikzpicture}}
+  \end{frame}
+
+\end{document}
+
+%%% Local Variables: 
+%%% coding: utf-8
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% End: 
