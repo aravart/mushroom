@@ -97,17 +97,44 @@
         \item e.g.
 
           \texttt{I give this book five stars out of 6}
-          \texttt{Can you add some disco to my playlist called Genuine R\&B}
+
+          \texttt{Can you add some disco to my playlist}
+
           \texttt{Show movies in the neighborhood}
         \end{itemize} 
-      \item A data engineer who can provide a seed utterance.
-      \begin{itemize}
-      \item e.g.
+      % \item A data engineer who can provide a seed utterance.
+      % \begin{itemize}
+      % \item e.g.
 
-        \texttt{i would like to \underline{buy abbey road}}
-      \end{itemize}
+      %   \texttt{i would like to \underline{buy abbey road}}
+      % \end{itemize}
   \end{itemize}
 \end{frame}
+
+  \begin{frame}{Workflow}
+    \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+    \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+    \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+    \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+    \tikzstyle{line} = [draw, -latex']
+
+\centering
+    \resizebox{0.5\textwidth}{!}{
+    \begin{tikzpicture}[node distance = 2cm, auto]
+      \node (in1) [io] {Initialize (Step 1)};
+      \node (in2) [startstop, below of=in1] {Seed};
+      \node (pro1) [process, below of=in2] {Snowball (Step 2)};
+      \node (cand) [startstop, below of=pro1] {Candidates};
+      \node (dec1) [io, below of=cand] {Curate (Step 3)};
+      \node (dec2) [startstop, below of=dec1] {Output};
+      \path [line,-{stealth[length=3mm, width=2mm]}] (in1) -- (in2);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (in2) -- (pro1);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (pro1) -- (cand);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (cand) -- (dec1);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (dec1) -- (dec2);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (dec2) -| ([xshift=2cm, yshift=0cm]dec1.east) |- (in2);
+    \end{tikzpicture}}
+  \end{frame}
   
 \begin{frame}{Step 1: Engineer provides seed utterance(s)}
 \texttt{i would like to \underline{buy abbey road}}
@@ -313,20 +340,20 @@ etc
     \tikzstyle{line} = [draw, -latex']
 
 \centering
-    \resizebox{0.25\textwidth}{!}{
+    \resizebox{0.4\textwidth}{!}{
     \begin{tikzpicture}[node distance = 2cm, auto, scale=0.5]
       \node (in1) [io] {Initialize};
       \node (in2) [startstop, below of=in1] {Seed};
-      \node (pro1) [process, below of=in2] {Generate};
+      \node (pro1) [process, below of=in2] {Snowball (+GPT3?)};
       \node (cand) [startstop, below of=pro1] {Candidates};
       \node (dec1) [io, below of=cand] {Curate};
       \node (dec2) [startstop, below of=dec1] {Output};
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (in1) -- (in2);
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (in2) -- (pro1);
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (pro1) -- (cand);
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (cand) -- (dec1);
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (dec1) -- (dec2);
-      \path [line,-{Stealth[length=3mm, width=2mm]}] (dec2) -| ([xshift=2cm, yshift=0cm]dec1.east) |- (in2);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (in1) -- (in2);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (in2) -- (pro1);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (pro1) -- (cand);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (cand) -- (dec1);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (dec1) -- (dec2);
+      \path [line,-{stealth[length=3mm, width=2mm]}] (dec2) -| ([xshift=5cm, yshift=0cm]dec1.east) |- (in2);
     \end{tikzpicture}}
   \end{frame}
 
