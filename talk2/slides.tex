@@ -2,6 +2,9 @@
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
 \usepackage{epsfig,graphicx}
 \usepackage{mathrsfs}
+\usepackage{soul,xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{smartdiagram}
 \usepackage{tikz}
 \usepackage[siunitx]{circuitikz}
 \usetikzlibrary{shapes,arrows}
@@ -79,60 +82,195 @@
 % Sometimes a data scientist is asked to train a text classifier for a new category without any training documents.  We propose one way for the data scientist to quickly generate a corpus for the new category.  Our method is based on the observation that many documents in an existing corpus -- which does not include the new category -- share structural similarity with the new category.  If we can find those documents and suggest modifications, we can generate promising candidate documents for the data scientist to use.  We do so with a graph-based approach, specifically by constructing an electric network and ranking candidate sentences by their effective conductance to a seed document.
 
 \begin{document}
+
+\setstcolor{red}
+
 \begin{frame}
   \titlepage
 \end{frame}
 
-\begin{frame}{Step 1: Add a seed utterance(s)}
+\begin{frame}{Prerequisites}
+  \begin{itemize}
+    \item An old corpus 
+      \begin{itemize}
+        \item Does not contain utterances of the new intent
+        \item e.g.
+
+          \texttt{I give this book five stars out of 6}
+          \texttt{Can you add some disco to my playlist called Genuine R\&B}
+          \texttt{Show movies in the neighborhood}
+        \end{itemize} 
+      \item A data engineer who can provide a seed utterance.
+      \begin{itemize}
+      \item e.g.
+
+        \texttt{i would like to \underline{buy abbey road}}
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+  
+\begin{frame}{Step 1: Engineer provides seed utterance(s)}
 \texttt{i would like to \underline{buy abbey road}}
 \end{frame}
   
-\begin{frame}{Step 2: Snowball generates sample results.}
-\texttt{Where can I \underline{buy abbey road}}
+\begin{frame}{Step 2: Snowball generates ranked candidates.}
 
-\texttt{Where to \underline{buy abbey road}}
+{\small \texttt{0.095 Where can I \underline{buy abbey road}}
 
-\texttt{I would like to \underline{buy abbey road}}
+\texttt{0.075 Where to \underline{buy abbey road}}
 
-\texttt{I would like reservations to \underline{buy abbey road}}
+\texttt{0.060 I would like to \underline{buy abbey road}}
 
-\texttt{I would like you to \underline{buy abbey road}}
+\texttt{0.057 I would like reservations to \underline{buy abbey road}}
 
-\texttt{I would like to add to \underline{buy abbey road}}
+\texttt{0.057 I would like you to \underline{buy abbey road}}
 
-\texttt{me and katharine would like to \underline{buy abbey road}}
+\texttt{0.057 I would like to add to \underline{buy abbey road}}
 
-\texttt{i want to \underline{buy abbey road}}
+\texttt{0.056 me and katharine would like to \underline{buy abbey road}}
 
-\texttt{i need to \underline{buy abbey road}}
+\texttt{0.055 i want to \underline{buy abbey road}}
 
-\texttt{Would like to \underline{buy abbey road}}
+\texttt{0.055 Would like to \underline{buy abbey road}}
 
-\texttt{I have eight that would like to \underline{buy abbey road}}
+\texttt{0.054 I have eight that would like to \underline{buy abbey road}}
 
-etc
+\texttt{0.046 i need to \underline{buy abbey road}}
+
+\bigskip 
+etc (1809 results)}
+
 \end{frame}
 
-\begin{frame}{Step 3: Clean up the results}
+\begin{frame}{Step 3: Engineer curates the candidates}
 
-  
-\texttt{Where can I \underline{buy abbey road}}
-  
-\texttt{Where to \underline{buy abbey road}}
- 
-\texttt{I would like to \underline{buy abbey road}}
-  
-\texttt{I would like you to \underline{buy abbey road}}
-  
-\texttt{i need to \underline{buy abbey road}}
-  
-\texttt{i want to \underline{buy abbey road}}
-  
-\texttt{Can I \underline{buy abbey road}}
-  
-\texttt{please \underline{buy abbey road}}
-  
+  \texttt{Where can I \underline{buy abbey road}}
+
+  \texttt{Where to \underline{buy abbey road}}
+
+  \texttt{I would like to \underline{buy abbey road}}
+
+  \texttt{I would like reservations to \underline{buy abbey road}}
+
+  \texttt{I would like you to \underline{buy abbey road}}
+
+  \texttt{I would like to add to \underline{buy abbey road}}
+
+  \texttt{me and katharine would like to buy abbey road}
+
+  \texttt{i want to \underline{buy abbey road}}
+
+  \texttt{Would like to \underline{buy abbey road}}
+
+  \texttt{I have eight that would like to \underline{buy abbey road}}
+
+  \texttt{i need to \underline{buy abbey road}}
+
 \end{frame}
+
+\begin{frame}{Step 3: Engineer curates the candidates}
+
+    \texttt{Where can I \underline{buy abbey road}}
+
+    \texttt{Where to \underline{buy abbey road}}
+
+    \texttt{I would like to \underline{buy abbey road}}
+
+    {\color{red}\texttt{I would like reservations to \underline{buy abbey road}}}
+
+    \texttt{I would like you to \underline{buy abbey road}}
+
+    \texttt{I would like to add to \underline{buy abbey road}}
+
+    \texttt{me and katharine would like to buy abbey road}
+
+    \texttt{i want to \underline{buy abbey road}}
+
+    \texttt{Would like to \underline{buy abbey road}}
+
+    \texttt{I have eight that would like to \underline{buy abbey road}}
+
+    \texttt{i need to \underline{buy abbey road}}
+
+\end{frame}
+
+\begin{frame}{Step 3: Engineer curates the candidates}
+
+  \texttt{Where can I \underline{buy abbey road}}
+
+  \texttt{Where to \underline{buy abbey road}}
+
+  \texttt{I would like to \underline{buy abbey road}}
+
+  \bigskip 
+
+  \texttt{I would like you to \underline{buy abbey road}}
+
+  \texttt{I would like to add to \underline{buy abbey road}}
+
+  \texttt{me and katharine would like to buy abbey road}
+
+  \texttt{i want to \underline{buy abbey road}}
+
+  \texttt{Would like to \underline{buy abbey road}}
+
+  \texttt{I have eight that would like to \underline{buy abbey road}}
+
+  \texttt{i need to \underline{buy abbey road}}
+
+\end{frame}
+
+\begin{frame}{Step 3: Engineer curates the candidates}
+
+  \texttt{Where can I \underline{buy abbey road}}
+
+  \texttt{Where to \underline{buy abbey road}}
+
+  \texttt{I would like to \underline{buy abbey road}}
+
+  \bigskip 
+
+  \texttt{I would like you to \underline{buy abbey road}}
+
+  \texttt{I would like to add to \underline{buy abbey road}}
+
+  \texttt{me and katharine would like to buy abbey road}
+
+  \texttt{i want to \underline{buy abbey road}}
+
+  \texttt{Would like to \underline{buy abbey road}}
+
+  {\color{red}\texttt{I have eight that would like to buy abbey road}}
+
+    \texttt{i need to \underline{buy abbey road}}
+
+  \end{frame}
+
+  \begin{frame}{Step 3: Engineer curates the candidates}
+
+    \texttt{Where can I \underline{buy abbey road}}
+
+    \texttt{Where to \underline{buy abbey road}}
+
+    \texttt{I would like to \underline{buy abbey road}}
+
+    \bigskip 
+
+    \texttt{I would like you to \underline{buy abbey road}}
+
+    \texttt{I would like to add to \underline{buy abbey road}}
+
+    \texttt{me and katharine would like to buy abbey road}
+
+    \texttt{i want to \underline{buy abbey road}}
+
+    \texttt{Would like to \underline{buy abbey road}}
+
+    {\small \texttt{I have decided that I would like to buy abbey road}}
+
+    \texttt{i need to \underline{buy abbey road}}
+
+  \end{frame}
 
 \begin{frame}{Step 4: Get more results (Return to step 2)}
 
@@ -175,20 +313,20 @@ etc
     \tikzstyle{line} = [draw, -latex']
 
 \centering
-    \resizebox{0.5\textwidth}{!}{
+    \resizebox{0.25\textwidth}{!}{
     \begin{tikzpicture}[node distance = 2cm, auto, scale=0.5]
       \node (in1) [io] {Initialize};
       \node (in2) [startstop, below of=in1] {Seed};
       \node (pro1) [process, below of=in2] {Generate};
       \node (cand) [startstop, below of=pro1] {Candidates};
-      \node (dec1) [io, xshift=2cm, right of=cand] {Curate};
-      \node (dec2) [startstop, above of=dec1] {Output};
-      \path [line] (in1) -- (in2);
-      \path [line] (in2) -- (pro1);
-      \path [line] (pro1) -- (cand);
-      \path [line] (cand) -- (dec1);
-      \path [line] (dec1) -- (dec2);
-      \path [line] (dec2) -- (pro1);
+      \node (dec1) [io, below of=cand] {Curate};
+      \node (dec2) [startstop, below of=dec1] {Output};
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (in1) -- (in2);
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (in2) -- (pro1);
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (pro1) -- (cand);
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (cand) -- (dec1);
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (dec1) -- (dec2);
+      \path [line,-{Stealth[length=3mm, width=2mm]}] (dec2) -| ([xshift=2cm, yshift=0cm]dec1.east) |- (in2);
     \end{tikzpicture}}
   \end{frame}
 
