@@ -110,69 +110,23 @@ def build_adjacency_matrix(g):
             a[idx[v]][i] = w
     return a, idx
 
-def effective_conductance_from_graph(g, keyword_phrase, targets):
+def effective_conductance_from_corpus(matcher, seed_keyword_phrases, max_depth):
+    g, left, right = mk_graph(seed_keyword_phrases, matcher, max_depth)
+    targets = set(left)
+    results = []
+
     a, idx = build_adjacency_matrix(g)
     d = np.diag(np.sum(a,axis=1))
     l = d - a
     l_plus = np.linalg.pinv(l)
 
-    res = []
-    for target in targets:
-        i = idx[target]
-        j = idx[keyword_phrase]
-        er = l_plus[i,i] - 2 * l_plus[i,j] + l_plus[j,j]
-        ec = 1/er
-        res.append(ec)
-        l_plus[idx[target]]
-    return res
-
-# def effective_conductance_from_graph(g, keyword_phrase, targets):
-#     d = len(g.keys())
-#     a = np.zeros((d,d))
-#     b = np.zeros(d)
-#     idx = {}
-#     for i, u in enumerate(g):
-#         idx[u] = i
-#     for i, u in enumerate(g):
-#         edges = g[u]
-#         for v in edges:
-#             w = edges[v]
-#             a[i][idx[v]] = w
-#             a[idx[v]][i] = w
-#     c_a = np.sum(a,axis=0)
-#     oa = a
-#     a = np.diag(1/c_a).dot(a)
-#     for j in range(d):
-#         a[j,j] = -1
-#     for j in range(d):
-#         a[idx[keyword_phrase],j] = 0
-#     a[idx[keyword_phrase],idx[keyword_phrase]] = 1.
-#     b[idx[keyword_phrase]] = 1.
-
-#     res = []
-#     for target in tqdm.tqdm(targets):
-#         original_row = np.copy(a[idx[target],:])
-#         proxy_row = np.zeros(d)
-#         proxy_row[idx[target]] = 1.
-#         a[idx[target],:] = proxy_row
-#         voltages = np.linalg.solve(a,b)
-#         edges = g[keyword_phrase]
-#         effective_capacity = 0
-#         for e in edges:
-#             effective_capacity += (1 - voltages[idx[e]]) * edges[e]
-#         res.append((effective_capacity, voltages))
-#         a[idx[target],:] = original_row
-#     return res
-
-def effective_conductance_from_corpus(matcher, seed_keyword_phrases, max_depth):
-    g, left, right = mk_graph(seed_keyword_phrases, matcher, max_depth)
-    # if context_phrase not in list(left):
-    #      raise Exception("Context phrase not found during search.")
-    targets = set(left)
-    results = []
-    for seed_keyword_phrase in seed_keyword_phrases:
-        # results.extend(list(zip(targets, map(lambda x: x[0], effective_conductance_from_graph(g, seed_keyword_phrase, targets)), len(targets) * [seed_keyword_phrase])))
-        results.extend(list(zip(targets, effective_conductance_from_graph(g, seed_keyword_phrase, targets), len(targets) * [seed_keyword_phrase])))
+    for keyword_phrase in seed_keyword_phrases:
+        for target in targets:
+            i = idx[target]
+            j = idx[keyword_phrase]
+            er = l_plus[i,i] - 2 * l_plus[i,j] + l_plus[j,j]
+            ec = 1/er
+            results.append((target, ec, keyword_phrase))
     results.sort(key=lambda x: x[1])
     return results, g, left, right
 
@@ -231,21 +185,19 @@ def open_editor(initial_message):
         edited_message = tf.read().decode()
     return edited_message
 
-def parse_user_corpus(lines):
+def extract_keyphrases(lines):
     keyphrases = []
-    corpus = []
-    for line in lines.split('\n'):
+    for line in lines:
         match = re.compile('_(.*)_').search(line)
         if match:
             keyphrase = line[match.span()[0]+1:match.span()[1]-1]
-            # context = line[:match.span()[0]+1] + lines[match.span()[1]-1:]
             keyphrases.append(keyphrase)
-            corpus.append(line.replace('_',''))
-    return keyphrases, corpus
+    return keyphrases
 
-def snowball(corpus, keyphrases, depth):
+def snowball(corpus, user_curated, depth):
     tic = time.perf_counter()
-    matcher = RegexMatch(corpus)
+    matcher = RegexMatch(corpus + list(map(lambda x: x.replace('_', ''), user_curated)))
+    keyphrases = extract_keyphrases(user_curated)
     results, g, l, r = effective_conductance_from_corpus(matcher, set(keyphrases), depth)
     print(f"# {len(keyphrases)} (new) seed(s)\n")
     print(f"# {len(results)} synthesized\n")
@@ -261,7 +213,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     from regex_match import RegexMatch
     initial_message = ''
-    all_outputs = []
+    user_curated = []
     if args.debug_seed_files:
         debug_seed_files = args.debug_seed_files.split(" ")
     else:
@@ -274,18 +226,12 @@ if __name__ == "__main__":
             user_corpus = ''.join(open(debug_seed_files[i], 'r').readlines())
         else:
             user_corpus = open_editor(initial_message)
+        user_corpus = user_corpus.split('\n')
         # add to seen so that user does not see their own output twice
-        # do this before parse_user_corpus to keep underscores
-        for u in user_corpus.split('\n'):
+        for u in user_corpus:
             shown_so_far.add(u)
-        keyphrases, user_corpus = parse_user_corpus(user_corpus)
-        all_outputs.extend(user_corpus)
-        if args.output:
-          with open(args.output, 'w') as f:
-              for line in all_outputs:
-                  f.write(line + '\n')
-        corpus.extend(user_corpus)
-        results = snowball(corpus, keyphrases, args.depth)
+        user_curated.extend(user_corpus)
+        results = snowball(corpus, user_curated, args.depth)
         # filter so that user does not see same snowball result twice
         candidates = list(reversed([ a.replace('__', '_' + c + '_') for a,b,c, in results]))
         initial_message = []
